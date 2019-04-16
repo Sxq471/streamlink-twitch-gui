@@ -36,17 +36,17 @@ export default Model.extend({
 	},
 
 
-	hasEnded: computed(function() {
+	get hasEnded() {
 		const access_end = get( this, "access_end" );
 
 		return access_end && new Date() > access_end;
-	}).volatile(),
+	},
 
-	ends: computed(function() {
+	get ends() {
 		const access_end = get( this, "access_end" );
 
 		return new Moment().to( access_end );
-	}).volatile(),
+	},
 
 
 	subbedFor: computed( "access_start", "purchase_profile.consecutive_months", function() {
