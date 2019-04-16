@@ -1,5 +1,5 @@
 import { get, set, computed } from "@ember/object";
-import { alias, and, equal, notEmpty, or } from "@ember/object/computed";
+import { alias, equal, notEmpty, or } from "@ember/object/computed";
 import { on } from "@ember/object/evented";
 import { cancel, later } from "@ember/runloop";
 import ListItemComponent from "../-list-item/component";
@@ -40,28 +40,42 @@ export default ListItemComponent.extend({
 
 	isFaded: or( "faded", "fadedVodcast" ),
 
-	fadedVodcast: and( "content.isVodcast", "settings.streams.filter_vodcast" ),
+	fadedVodcast: false,
+	_fadedVodcast: computed(
+		"content.isVodcast",
+		"settings.content.streams.filter_vodcast",
+		function() {
+			return this.fadedVodcast
+				|| this.content.isVodcast
+				&& this.settings.content.streams.filter_vodcast;
+		}
+	),
 
-	faded: computed(
-		"settings.streams.filter_languages",
-		"settings.streams.languages",
-		"settings.hasStreamsLanguagesSelection",
+	faded: false,
+	_faded: computed(
+		"settings.content.streams.filter_languages",
+		"settings.content.streams.languages",
+		"settings.content.hasStreamsLanguagesSelection",
 		"channel.language",
 		"channel.broadcaster_language",
 		function() {
-			if ( get( this, "settings.streams.filter_languages" ) ) {
+			if ( this.faded ) {
+				return true;
+			}
+
+			if ( this.settings.content.streams.filter_languages ) {
 				return false;
 			}
 
 			// don't fade if the user has selected none or all languages
-			const hasLangSelection = get( this, "settings.hasStreamsLanguagesSelection" );
+			const hasLangSelection = this.settings.content.hasStreamsLanguagesSelection;
 			if ( !hasLangSelection ) {
 				return false;
 			}
 
-			const languages = get( this, "settings.streams.languages" ).toJSON();
-			const clang = get( this, "channel.language" );
-			const blang = get( this, "channel.broadcaster_language" );
+			const languages = this.settings.content.streams.languages.toJSON();
+			const clang = this.channel.language;
+			const blang = this.channel.broadcaster_language;
 
 			// a channel language needs to be set
 			if ( clang ) {
