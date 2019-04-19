@@ -1,26 +1,28 @@
 import TextField from "@ember/component/text-field";
-import { get } from "@ember/object";
 import { inject as service } from "@ember/service";
+import { attribute } from "@ember-decorators/component";
 import { get as getClipboard, set as setClipboard } from "nwjs/Clipboard";
 
 
-export default TextField.extend({
-	nwjs: service(),
+export default class TextFieldComponent extends TextField {
+	/** @type {NwjsService} */
+	@service nwjs;
 
-	attributeBindings: [ "autoselect:data-selectable" ],
+	@attribute( "data-selectable" )
+	autoselect = false;
 
-	autoselect: false,
+	autofocus = false;
+	noContextmenu = false;
 
 	contextMenu( event ) {
-		if ( this.attrs.noContextmenu ) { return; }
+		if ( this.noContextmenu ) { return; }
 
 		const element = this.element;
 		const start = element.selectionStart;
 		const end = element.selectionEnd;
 
 		const clip = getClipboard();
-		const nwjs = get( this, "nwjs" );
-		nwjs.contextMenu( event, [
+		this.nwjs.contextMenu( event, [
 			{
 				label: [ "contextmenu.copy" ],
 				enabled: start !== end,
@@ -42,13 +44,13 @@ export default TextField.extend({
 				}
 			}
 		]);
-	},
+	}
 
 	focusIn() {
-		if ( !this.attrs.autofocus || !this.attrs.autoselect ) { return; }
+		if ( !this.autofocus || !this.autoselect ) { return; }
 
 		this.element.setSelectionRange( 0, this.element.value.length );
-	},
+	}
 
 	/**
 	 * @param {KeyboardEvent} event
@@ -59,6 +61,6 @@ export default TextField.extend({
 			return;
 		}
 
-		return this._super( ...arguments );
+		return super.keyDown( ...arguments );
 	}
-});
+}

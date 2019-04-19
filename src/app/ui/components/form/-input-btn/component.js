@@ -1,18 +1,26 @@
 import Component from "@ember/component";
+import { attribute, className, classNames, layout, tagName } from "@ember-decorators/component";
 import isFocused from "utils/is-focused";
-import layout from "./template.hbs";
+import template from "./template.hbs";
 import "./styles.less";
 
 
-export default Component.extend({
-	layout,
+@layout( template )
+@tagName( "label" )
+@classNames( "input-btn-component" )
+export default class InputBtnComponent extends Component {
+	static positionalParams = [ "label" ];
 
-	tagName: "label",
-	classNames: [ "input-btn-component" ],
-	classNameBindings: [ "checked", "disabled" ],
-	attributeBindings: [ "tabindex" ],
-	tabindex: 0,
+	@className
+	checked = false;
 
+	@className
+	disabled = false;
+
+	label;
+
+	@attribute
+	tabindex = 0;
 
 	/**
 	 * @param {KeyboardEvent} event
@@ -34,7 +42,4 @@ export default Component.extend({
 				return;
 		}
 	}
-
-}).reopenClass({
-	positionalParams: [ "label" ]
-});
+}
